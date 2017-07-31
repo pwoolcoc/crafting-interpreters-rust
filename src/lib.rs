@@ -11,6 +11,8 @@ use token::Token;
 mod errors;
 mod scanner;
 mod token;
+mod token_type;
+mod literal;
 
 pub fn run_file(filename: &str) {
     println!("running file {}", filename);
