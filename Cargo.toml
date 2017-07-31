@@ -13,3 +13,4 @@ name = "lox"
 path = "src/bin/main.rs"
 
 [dependencies]
+error-chain = "0.10.0"
