@@ -123,10 +123,6 @@ impl Scanner {
         Err(ErrorKind::LoxError(self.line, "no matched token".into()).into())
     }
 
-    fn is_whitespace(&self, ch: char) -> bool {
-        ch == '\t' || ch == ' ' || ch == '\r'
-    }
-
     fn is_digit(&self, ch: char) -> bool {
         ch >= '0' && ch <= '9'
     }

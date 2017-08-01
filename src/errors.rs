@@ -1,3 +1,5 @@
+#![allow(unused_doc_comment)]
+
 error_chain!{
     foreign_links {
         ParseInt(::std::num::ParseIntError);

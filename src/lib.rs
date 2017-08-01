@@ -1,12 +1,11 @@
 #[macro_use] extern crate error_chain;
 
 use std::fs::File;
-use std::io::{self, stdin, stdout, Read, Write, BufReader, BufRead};
+use std::io::{stdin, stdout, Read, Write, BufReader, BufRead};
 use std::process;
 
 pub use errors::*;
 use scanner::Scanner;
-use token::Token;
 
 mod errors;
 mod scanner;
@@ -15,10 +14,12 @@ mod token_type;
 mod literal;
 
 pub fn run_file(filename: &str) {
-    println!("running file {}", filename);
     let mut src = String::new();
     let mut f = File::open(filename).unwrap();
-    f.read_to_string(&mut src);
+    if let Err(e) = f.read_to_string(&mut src) {
+        eprintln!("{}: Error reading from file {}", e, &filename);
+        process::exit(65);
+    }
     if let Err(e) = run(&src) {
         eprintln!("{}", e.description());
         process::exit(65);
