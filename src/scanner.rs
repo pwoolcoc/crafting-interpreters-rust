@@ -99,7 +99,7 @@ impl Scanner {
             },
 
             // Ignore Whitespace
-            ' ' | '\r' | 't' => {
+            ' ' | '\r' | '\t' => {
                 None
             },
 
