@@ -5,7 +5,7 @@ Interpreters](http://www.craftinginterpreters.com) by @munificent, but
 I enjoy writing rust more than java, so I started adapting the code in
 the book.
 
-- [ ] Scanning
+- [x] Scanning (branch: 01-scanning)
 - [ ] Representing Code
 - [ ] Parsing Expressions
 - [ ] Evaluating Expressions

@@ -4,4 +4,13 @@ version = "0.1.0"
 authors = ["Paul Woolcock <pwoolcock@tenable.com>"]
 license = "Unlicense"
 
+[lib]
+name = "_lox"
+path = "src/lib.rs"
+
+[[bin]]
+name = "lox"
+path = "src/bin/main.rs"
+
 [dependencies]
+error-chain = "0.10.0"
