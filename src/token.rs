@@ -23,8 +23,8 @@ impl Token {
 
 impl fmt::Debug for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.literal.is_some() {
-            write!(f, "{:?} {:?} {:?}", self.token_type, self.lexeme, self.literal)
+        if let Some(ref literal) = self.literal {
+            write!(f, "{:?} {:?} {:?}", self.token_type, self.lexeme, literal)
         } else {
             write!(f, "{:?} {:?}", self.token_type, self.lexeme)
         }
