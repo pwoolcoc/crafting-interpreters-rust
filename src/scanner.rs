@@ -1,4 +1,4 @@
-use errors::*;
+use errors::{Result, ErrorKind};
 use token::Token;
 use token_type::TokenType;
 use literal::{Literal, Number};
@@ -32,55 +32,57 @@ impl Scanner {
         while !self.is_at_end() {
             self.start = self.current;
             let token = self.scan_token()?;
-            tokens.push(token);
+            if let Some(token) = token {
+                tokens.push(token);
+            }
         }
 
         tokens.push(Token::new(TokenType::Eof, "", None, self.line));
         Ok(tokens)
     }
 
-    fn scan_token(&mut self) -> Result<Token> {
+    fn scan_token(&mut self) -> Result<Option<Token>> {
         let ch = self.next();
-        match ch {
+        Ok(match ch {
             // Single-char tokens
-            '(' => return Ok(self.make_token(TokenType::LeftParen, None)),
-            ')' => return Ok(self.make_token(TokenType::RightParen, None)),
-            '{' => return Ok(self.make_token(TokenType::LeftBrace, None)),
-            '}' => return Ok(self.make_token(TokenType::RightBrace, None)),
-            ',' => return Ok(self.make_token(TokenType::Comma, None)),
-            '.' => return Ok(self.make_token(TokenType::Dot, None)),
-            '-' => return Ok(self.make_token(TokenType::Minus, None)),
-            '+' => return Ok(self.make_token(TokenType::Plus, None)),
-            ';' => return Ok(self.make_token(TokenType::Semicolon, None)),
-            '*' => return Ok(self.make_token(TokenType::Star, None)),
+            '(' => Some(self.make_token(TokenType::LeftParen, None)),
+            ')' => Some(self.make_token(TokenType::RightParen, None)),
+            '{' => Some(self.make_token(TokenType::LeftBrace, None)),
+            '}' => Some(self.make_token(TokenType::RightBrace, None)),
+            ',' => Some(self.make_token(TokenType::Comma, None)),
+            '.' => Some(self.make_token(TokenType::Dot, None)),
+            '-' => Some(self.make_token(TokenType::Minus, None)),
+            '+' => Some(self.make_token(TokenType::Plus, None)),
+            ';' => Some(self.make_token(TokenType::Semicolon, None)),
+            '*' => Some(self.make_token(TokenType::Star, None)),
 
             // Single-or-double-char tokens
             '!' => {
                 if self.match_char('=') {
-                    return Ok(self.make_token(TokenType::BangEqual, None));
+                    Some(self.make_token(TokenType::BangEqual, None))
                 } else {
-                    return Ok(self.make_token(TokenType::Bang, None));
+                    Some(self.make_token(TokenType::Bang, None))
                 }
             },
             '=' => {
                 if self.match_char('=') {
-                    return Ok(self.make_token(TokenType::EqualEqual, None));
+                    Some(self.make_token(TokenType::EqualEqual, None))
                 } else {
-                    return Ok(self.make_token(TokenType::Equal, None));
+                    Some(self.make_token(TokenType::Equal, None))
                 }
             },
             '<' => {
                 if self.match_char('=') {
-                    return Ok(self.make_token(TokenType::LesserEqual, None));
+                    Some(self.make_token(TokenType::LesserEqual, None))
                 } else {
-                    return Ok(self.make_token(TokenType::Lesser, None));
+                    Some(self.make_token(TokenType::Lesser, None))
                 }
             },
             '>' => {
                 if self.match_char('=') {
-                    return Ok(self.make_token(TokenType::GreaterEqual, None));
+                    Some(self.make_token(TokenType::GreaterEqual, None))
                 } else {
-                    return Ok(self.make_token(TokenType::Greater, None));
+                    Some(self.make_token(TokenType::Greater, None))
                 }
             },
 
@@ -90,37 +92,34 @@ impl Scanner {
                     while self.peek() != '\n' && !self.is_at_end() {
                         self.next();
                     }
+                    None
                 } else {
-                    return Ok(self.make_token(TokenType::Slash, None));
+                    Some(self.make_token(TokenType::Slash, None))
                 }
             },
 
-            // Whitespace
-            // The original impl just discarded it, but I've been
-            // having problems just skipping it, so for now I'm
-            // emitting a token
+            // Ignore Whitespace
             ' ' | '\r' | 't' => {
-                return Ok(self.make_token(TokenType::Ws, None));
+                None
             },
 
             '\n' => {
                 self.line += 1;
-                return self.scan_token();
+                self.scan_token()?
             },
 
-            '"' => return self.scan_string(),
+            '"' => Some(self.scan_string()?),
 
             digit if self.is_digit(digit) => {
-                return self.scan_number();
+                Some(self.scan_number()?)
             },
 
             alpha if self.is_alpha(alpha) => {
-                return self.scan_ident();
+                Some(self.scan_ident()?)
             },
 
-            _ => (),
-        };
-        Err(ErrorKind::LoxError(self.line, "no matched token".into()).into())
+            _ => return Err(ErrorKind::LoxError(self.line, "no matched token".into()).into())
+        })
     }
 
     fn is_digit(&self, ch: char) -> bool {
